@@ -1,0 +1,10 @@
+spring:
+  r2dbc:
+    url: r2dbc:pool:postgresql://localhost:5432/proselyte
+    username: user
+    password: password
+  flyway:
+    url: jdbc:postgresql://localhost:5432/proselyte
+    user: user
+    password: password
+    locations: classpath:db/migration
