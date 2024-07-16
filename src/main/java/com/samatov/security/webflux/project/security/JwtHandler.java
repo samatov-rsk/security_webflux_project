@@ -1,12 +1,10 @@
 package com.samatov.security.webflux.project.security;
 
-import com.samatov.security.webflux.project.exception.AuthException;
 import com.samatov.security.webflux.project.exception.UnauthorizedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import reactor.core.publisher.Mono;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
 
