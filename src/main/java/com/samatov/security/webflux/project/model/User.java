@@ -36,9 +36,9 @@ public class User {
     @Column("status")
     private Status status;
 
-    @NotNull
-    @MappedCollection(idColumn = "user_id")
-    private Flux<Event> events;
+//    @NotNull
+//    @MappedCollection(idColumn = "user_id")
+//    private Flux<Event> events;
 
     @ToString.Include(name = "password")
     private String maskPassword() {
