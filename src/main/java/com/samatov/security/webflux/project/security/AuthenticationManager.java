@@ -2,7 +2,6 @@ package com.samatov.security.webflux.project.security;
 
 import com.samatov.security.webflux.project.enums.Status;
 import com.samatov.security.webflux.project.exception.UnauthorizedException;
-import com.samatov.security.webflux.project.repository.UserRepository;
 import com.samatov.security.webflux.project.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;

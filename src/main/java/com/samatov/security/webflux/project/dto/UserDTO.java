@@ -5,13 +5,10 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.samatov.security.webflux.project.enums.Role;
 import com.samatov.security.webflux.project.enums.Status;
-import com.samatov.security.webflux.project.model.Event;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @Builder(toBuilder = true)
