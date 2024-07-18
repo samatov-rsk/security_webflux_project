@@ -1,8 +1,8 @@
 package com.samatov.security.webflux.project.security;
 
 import com.samatov.security.webflux.project.exception.AuthException;
-import com.samatov.security.webflux.project.model.UserEntity;
-import com.samatov.security.webflux.project.repository.UserRepository;
+import com.samatov.security.webflux.project.model.User;
+import com.samatov.security.webflux.project.service.UserService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
@@ -18,22 +18,22 @@ import java.util.*;
 @RequiredArgsConstructor
 public class SecurityService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${jwt.secret}")
     private String secret;
-    @Value("${jwt.expiration")
+    @Value("${jwt.expiration}")
     private Integer expiration;
     @Value("${jwt.issuer")
     private String issuer;
 
-    private TokenDetails generateToken(UserEntity userEntity) {
+    private TokenDetails generateToken(User user) {
         Map<String, Object> claims = new HashMap<>(){{
-            put("roles", userEntity.getRoles());
-            put("username", userEntity.getUsername());
+            put("roles", user.getRoles());
+            put("username", user.getUsername());
         }};
-        return generateToken(claims,userEntity.getId().toString());
+        return generateToken(claims,user.getId().toString());
 
     }
     private TokenDetails generateToken(Map<String, Object> claims, String subject) {
@@ -63,16 +63,16 @@ public class SecurityService {
     }
 
     public Mono<TokenDetails> authenticate(String username, String password) {
-        return userRepository.findByUsername(username)
-                .flatMap(userEntity -> {
-                    if (userEntity.getStatus().equals("DELETED")) {
+        return userService.findUserByUsername(username)
+                .flatMap(user -> {
+                    if (user.getStatus().equals("DELETED")) {
                         return Mono.error(new AuthException("Account disabled", "PROSELYTE ACCOUNT DISABLED"));
                     }
-                    if (!passwordEncoder.matches(password, userEntity.getPassword())) {
+                    if (!passwordEncoder.matches(password, user.getPassword())) {
                         return Mono.error(new BadCredentialsException("INVALID PASSWORD"));
                     }
-                    return Mono.just(generateToken(userEntity).toBuilder()
-                                    .userId(userEntity.getId())
+                    return Mono.just(generateToken(user).toBuilder()
+                                    .userId(user.getId())
                             .build());
                 })
                 .switchIfEmpty(Mono.error(new AuthException("INVALID USERNAME", "PROSELYTE INVALID USERNAME")));

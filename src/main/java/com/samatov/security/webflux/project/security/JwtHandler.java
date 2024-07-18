@@ -16,17 +16,20 @@ public class JwtHandler {
         this.secret = secret;
     }
 
-    public Mono<VerificationResult> validateToken(String accessToken) {
+    public Mono<VerificationResult> check(String accessToken) {
        return Mono.just(verify(accessToken))
                .onErrorResume(e -> Mono.error(new UnauthorizedException(e.getMessage())));
     }
 
     private VerificationResult verify(String token) {
         Claims claims = getClaimsFromToken(token);
+
         final Date expiration = claims.getExpiration();
+
         if (expiration.before(new Date())) {
             throw new RuntimeException("Token expired");
         }
+
         return new VerificationResult(claims, token);
     }
 

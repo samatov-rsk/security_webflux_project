@@ -2,26 +2,43 @@ package com.samatov.security.webflux.project.model;
 
 import com.samatov.security.webflux.project.enums.Role;
 import com.samatov.security.webflux.project.enums.Status;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
 @Table("users")
-public class UserEntity {
+public class User {
 
     @Id
     private Long id;
+
+    @NotNull
+    @Column("username")
     private String username;
+
+    @NotNull
+    @Column("password")
     private String password;
-    private List<Role> roles;
+
+    @NotNull
+    @Column("roles")
+    private Role roles;
+
+    @NotNull
+    @Column("status")
     private Status status;
 
+    @NotNull
+    @MappedCollection(idColumn = "user_id")
+    private Flux<Event> events;
 
     @ToString.Include(name = "password")
     private String maskPassword() {
