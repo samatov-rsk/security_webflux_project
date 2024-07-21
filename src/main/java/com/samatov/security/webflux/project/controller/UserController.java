@@ -35,8 +35,7 @@ public class UserController {
     public Flux<ResponseEntity<UserDTO>> getAllUsers() {
         return userService.getAllUser()
                 .map(user -> userMapper.map(user))
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+                .map(ResponseEntity::ok);
     }
 
     @PostMapping("/save")

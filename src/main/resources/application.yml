@@ -1,5 +1,7 @@
 server:
   port: 8083
+  reactive:
+    type: netty
 
 spring:
   r2dbc:
@@ -20,3 +22,30 @@ jwt:
   secret: b5f59337a612a2a7dc07328f3e7d1a04722967c7f06df20a499a7d3f91ff2a7e
   expiration : 3600
   issuer : Ruslan
+
+cloud:
+  aws:
+    credentials:
+      access-key:
+      secret-key:
+    region:
+      static: eu-central-1
+    s3:
+      endpoint: s3://proselytefiles
+    stack:
+      auto: false
+
+servlet:
+  multipart:
+    max-file-size: 50MB
+    max-request-size: 100MB
+
+application:
+  bucket:
+    name: proselytefiles
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.springframework.web.reactive: DEBUG
+    org.springframework.http: DEBUG

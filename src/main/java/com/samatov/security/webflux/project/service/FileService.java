@@ -1,44 +1,54 @@
 package com.samatov.security.webflux.project.service;
 
-import com.samatov.security.webflux.project.model.File;
-import com.samatov.security.webflux.project.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import software.amazon.awssdk.core.async.AsyncRequestBody;
+import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectResponse;
+
+import java.nio.ByteBuffer;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class FileService {
 
-    private final FileRepository fileRepository;
-    private final UserService userService;
-    private final EventService eventService;
+    private final S3AsyncClient s3Client;
 
-    public Mono<File> getById(Long id) {
-        return fileRepository.findById(id)
-                .doOnSuccess(file -> log.info("Файл найден : {}", file))
-                .doOnError(error -> log.error("Файл не найден : {}", error.getMessage()));
+    @Value("${application.bucket.name}")
+    private String bucketName;
+
+    public Mono<String> uploadFile(FilePart filePart) {
+        String filename = System.currentTimeMillis() + "_" + filePart.filename();
+        AtomicReference<ByteBuffer> byteBufferRef = new AtomicReference<>();
+
+        return filePart.content()
+                .map(dataBuffer -> {
+                    ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
+                    dataBuffer.read(byteBuffer.array());
+                    byteBuffer.flip();
+                    byteBufferRef.set(byteBuffer);
+                    return byteBufferRef.get();
+                })
+                .last()
+                .flatMap(buffer -> {
+                    CompletableFuture<PutObjectResponse> future = s3Client.putObject(
+                            PutObjectRequest.builder()
+                                    .bucket(bucketName)
+                                    .key(filename)
+                                    .build(),
+                            AsyncRequestBody.fromByteBuffer(buffer)
+                    );
+
+                    return Mono.fromFuture(future)
+                            .map(response -> "File uploaded: " + filename);
+                });
     }
-
-    public Flux<File> getAll() {
-        return fileRepository.findAll()
-                .doOnNext(file -> log.info("Файл получены"))
-                .doOnError(error -> log.error("Ошибка при получении файлов"));
-    }
-
-    public Mono<File> save(File file) {
-        return fileRepository.save(file)
-                .doOnSuccess(file1 -> log.info("Файл успешно сохранен : {}", file1))
-                .doOnError(error -> log.error("Ошибка при сохранении файла"));
-    }
-
-    public Mono<Void> deleteById(Long id) {
-        return fileRepository.deleteById(id)
-                .doOnSuccess(file -> log.info("Файл успешно удален"))
-                .doOnError(error -> log.error("Ошибка при удалении файла"));
-    }
-
 }
