@@ -13,7 +13,6 @@ import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3AsyncClientBuilder;
 import software.amazon.awssdk.services.s3.S3Configuration;
 
-import java.net.URI;
 import java.time.Duration;
 
 @Configuration
