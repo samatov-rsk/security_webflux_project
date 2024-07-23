@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class EventDTO {
-    private Integer id;
-    private UserDTO user;
-    private FileDTO file;
+
+    private Long id;
+    private Long userId;
+    private Long fileId;
 }

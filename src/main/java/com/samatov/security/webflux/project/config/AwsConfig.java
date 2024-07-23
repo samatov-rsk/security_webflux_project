@@ -28,9 +28,6 @@ public class AwsConfig {
     @Value("${cloud.aws.region.static}")
     private String region;
 
-    @Value("${cloud.aws.s3.endpoint}")
-    private URI endpoint;
-
     @Bean
     public S3AsyncClient s3AsyncClient(AwsCredentialsProvider awsCredentialsProvider) {
         S3AsyncClientBuilder builder = S3AsyncClient.builder()
@@ -38,10 +35,6 @@ public class AwsConfig {
                 .region(Region.of(region))
                 .credentialsProvider(awsCredentialsProvider)
                 .serviceConfiguration(s3Configuration());
-
-        if (endpoint != null) {
-            builder.endpointOverride(endpoint);
-        }
 
         return builder.build();
     }

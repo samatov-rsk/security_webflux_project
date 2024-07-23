@@ -10,9 +10,9 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @Table("files")
-public class File {
+public class FileEntity {
     @Id
     private Long id;
 

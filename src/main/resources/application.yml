@@ -23,15 +23,14 @@ jwt:
   expiration : 3600
   issuer : Ruslan
 
+
 cloud:
   aws:
     credentials:
-      access-key:
-      secret-key:
+      access-key: AKIA5FTZB3BXWRKYQJ74
+      secret-key: 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
     region:
       static: eu-central-1
-    s3:
-      endpoint: s3://proselytefiles
     stack:
       auto: false
 
@@ -49,3 +48,4 @@ logging:
     org.springframework.web: DEBUG
     org.springframework.web.reactive: DEBUG
     org.springframework.http: DEBUG
+

@@ -6,8 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.MappedCollection;
-import reactor.core.publisher.Mono;
+import org.springframework.data.relational.core.mapping.Table;
 
 import javax.validation.constraints.NotNull;
 
@@ -15,24 +14,17 @@ import javax.validation.constraints.NotNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table("events")
 public class Event {
 
     @Id
-    private Integer id;
+    private Long id;
 
     @NotNull
     @Column("user_id")
-    private Integer userId;
+    private Long userId;
 
     @NotNull
     @Column("file_id")
-    private Integer fileId;
-
-    @NotNull
-    @MappedCollection(idColumn = "user_id")
-    private Mono<User> user;
-
-    @NotNull
-    @MappedCollection(idColumn = "file_id")
-    private Mono<File> file;
+    private Long fileId;
 }
