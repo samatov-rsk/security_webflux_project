@@ -1,12 +1,9 @@
 package com.samatov.security.webflux.project.service;
 
-import com.samatov.security.webflux.project.enums.Role;
-import com.samatov.security.webflux.project.enums.Status;
 import com.samatov.security.webflux.project.exception.NotFoundException;
 import com.samatov.security.webflux.project.exception.UserException;
 import com.samatov.security.webflux.project.model.User;
 import com.samatov.security.webflux.project.repository.UserRepository;
-import com.samatov.security.webflux.project.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,9 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 public class UserServiceTest {

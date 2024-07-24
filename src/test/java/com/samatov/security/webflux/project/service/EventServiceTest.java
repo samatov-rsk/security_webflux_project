@@ -4,7 +4,6 @@ import com.samatov.security.webflux.project.exception.EventException;
 import com.samatov.security.webflux.project.exception.NotFoundException;
 import com.samatov.security.webflux.project.model.Event;
 import com.samatov.security.webflux.project.repository.EventRepository;
-import com.samatov.security.webflux.project.service.EventService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -17,7 +17,6 @@ import reactor.core.publisher.Mono;
 public class EventService {
 
     private final EventRepository eventRepository;
-    private final EventMapper eventMapper;
 
     public Mono<Event> getEventById(Long id) {
         return eventRepository.findById(id)
