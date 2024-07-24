@@ -30,9 +30,16 @@ public class UserService {
 
     public Flux<User> getAllUser() {
         return userRepository.findAll()
-                .switchIfEmpty(Mono.error(new UserException("Ошибка запроса пользователи не найдены")))
-                .doOnNext(user -> log.info("Получение всех пользователей {} ", userRepository.findAll()))
-                .doOnError(user -> log.error("Пользователи не найдены"));
+                .collectList()
+                .flatMapMany(users -> {
+                    if (users.isEmpty()) {
+                        log.error("Пользователи не найдены");
+                        return Flux.error(new UserException("Ошибка запроса пользователи не найдены"));
+                    } else {
+                        log.info("Получение всех пользователей {}", users);
+                        return Flux.fromIterable(users);
+                    }
+                });
     }
 
     public Mono<User> updateUser(User user) {

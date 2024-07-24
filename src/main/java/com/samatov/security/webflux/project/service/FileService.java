@@ -1,6 +1,8 @@
 package com.samatov.security.webflux.project.service;
 
 import com.samatov.security.webflux.project.enums.Status;
+import com.samatov.security.webflux.project.exception.FileException;
+import com.samatov.security.webflux.project.exception.NotFoundException;
 import com.samatov.security.webflux.project.model.FileEntity;
 import com.samatov.security.webflux.project.repository.FileRepository;
 import com.samatov.security.webflux.project.s3.S3Service;
@@ -47,7 +49,9 @@ public class FileService {
                         .flatMap(response -> saveFileEntity(filename))
                         .flatMap(savedFile -> eventService.createEvent(userId, savedFile.getId())
                                 .thenReturn(savedFile))
-                );
+                )
+                .doOnSuccess(file -> log.info("Файл успешно загружен: {}", file.getName()))
+                .doOnError(error -> log.error("Ошибка при загрузке файла: {}", filename, error));
     }
 
     private Mono<Long> getCurrentUserId() {
@@ -74,7 +78,8 @@ public class FileService {
                     byteBufferRef.set(byteBuffer);
                     return byteBufferRef.get();
                 })
-                .last();
+                .last()
+                .doOnError(error -> log.error("Ошибка при обработке содержимого файла", error));
     }
 
     private Mono<FileEntity> saveFileEntity(String filename) {
@@ -84,19 +89,28 @@ public class FileService {
                 .status(Status.ACTIVE)
                 .build();
 
-        return fileRepository.save(fileEntity);
+        return fileRepository.save(fileEntity)
+                .doOnSuccess(file -> log.info("Файл успешно сохранен в базе данных: {}", filename))
+                .doOnError(error -> log.error("Ошибка при сохранении файла в базе данных: {}", filename, error));
     }
 
     public Mono<FileEntity> getFileById(Long id) {
-        return fileRepository.findById(id);
+        return fileRepository.findById(id)
+                .switchIfEmpty(Mono.error(new NotFoundException("Файл с таким id не найден")))
+                .doOnSuccess(file -> log.info("Получение файла по id: {}", id))
+                .doOnError(error -> log.error("Файл с id {} не найден", id, error));
     }
 
     public Flux<FileEntity> getAllFiles() {
-        return fileRepository.findAll();
+        return fileRepository.findAll()
+                .switchIfEmpty(Mono.error(new FileException("Файлы не найдены")))
+                .doOnNext(file -> log.info("Получение всех файлов: {}", file))
+                .doOnError(error -> log.error("Ошибка при получении всех файлов", error));
     }
 
     public Mono<Void> deleteFile(Long id) {
         return fileRepository.findById(id)
+                .switchIfEmpty(Mono.error(new NotFoundException("Файл с таким id не найден")))
                 .flatMap(fileEntity -> {
                     CompletableFuture<DeleteObjectResponse> future = s3Client.deleteObject(
                             DeleteObjectRequest.builder()
@@ -110,11 +124,13 @@ public class FileService {
                                 fileEntity.setStatus(Status.DELETED);
                                 return fileRepository.save(fileEntity).then();
                             });
-                });
+                })
+                .doOnSuccess(unused -> log.info("Файл с id {} успешно удален", id))
+                .doOnError(error -> log.error("Ошибка при удалении файла с id {}", id, error));
     }
 
     public Mono<ByteBuffer> getFileByName(String filename) {
-        log.info("Fetching file: {} from bucket: {}", filename, bucketName);
+        log.info("Получение файла: {} из бакета: {}", filename, bucketName);
         CompletableFuture<ResponseBytes<GetObjectResponse>> future = s3Client.getObject(
                 GetObjectRequest.builder()
                         .bucket(bucketName)
@@ -125,6 +141,7 @@ public class FileService {
 
         return Mono.fromFuture(future)
                 .map(responseBytes -> ByteBuffer.wrap(responseBytes.asByteArray()))
-                .doOnError(error -> log.error("Error fetching file from S3", error));
+                .doOnSuccess(buffer -> log.info("Файл успешно получен: {}", filename))
+                .doOnError(error -> log.error("Ошибка при получении файла из S3", error));
     }
 }
