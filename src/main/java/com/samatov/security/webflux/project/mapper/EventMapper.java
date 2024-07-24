@@ -7,8 +7,11 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface EventMapper {
+    @Mapping(source = "userId", target = "user.id")
+    @Mapping(source = "fileId", target = "file.id")
     EventDTO map(Event event);
 
-    @Mapping(target = "id", ignore = true)
+    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "file.id", target = "fileId")
     Event map(EventDTO eventDTO);
 }

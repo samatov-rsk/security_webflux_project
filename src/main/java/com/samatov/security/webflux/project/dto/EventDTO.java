@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class EventDTO {
 
     private Long id;
-    private Long userId;
-    private Long fileId;
+    private UserDTO user;
+    private FileDTO file;
 }

@@ -45,7 +45,7 @@ public class FileService {
                 .flatMap(userId -> processFileContent(filePart)
                         .flatMap(buffer -> s3Service.uploadFileToS3(filename, buffer))
                         .flatMap(response -> saveFileEntity(filename))
-                        .flatMap(savedFile -> eventService.saveEvent(userId, savedFile.getId())
+                        .flatMap(savedFile -> eventService.createEvent(userId, savedFile.getId())
                                 .thenReturn(savedFile))
                 );
     }
@@ -86,7 +86,6 @@ public class FileService {
 
         return fileRepository.save(fileEntity);
     }
-
 
     public Mono<FileEntity> getFileById(Long id) {
         return fileRepository.findById(id);
