@@ -37,8 +37,8 @@ public class EventController {
         return eventService.getEventById(id)
                 .flatMap(event -> Mono.zip(
                         Mono.just(event),
-                        userService.getUserById(event.getUserId()),  // Получение пользователя по ID
-                        fileService.getFileById(event.getFileId()))  // Получение файла по ID
+                        userService.getUserById(event.getUserId()),
+                        fileService.getFileById(event.getFileId()))
                 )
                 .map(tuple -> {
                     Event event = tuple.getT1();
@@ -58,8 +58,8 @@ public class EventController {
         return eventService.getAllEvents()
                 .flatMap(event -> Mono.zip(
                         Mono.just(event),
-                        userService.getUserById(event.getUserId()),  // Получение пользователя по ID
-                        fileService.getFileById(event.getFileId()))  // Получение файла по ID
+                        userService.getUserById(event.getUserId()),
+                        fileService.getFileById(event.getFileId()))
                 )
                 .map(tuple -> {
                     Event event = tuple.getT1();
@@ -70,15 +70,5 @@ public class EventController {
                     eventDTO.setFile(fileDTO);
                     return eventDTO;
                 });
-    }
-
-    @PostMapping("/save")
-    @PreAuthorize("hasAnyAuthority('USER', 'MODERATOR', 'ADMIN')")
-    public Mono<ResponseEntity<EventDTO>> createEvent(@Validated @RequestBody EventDTO eventDTO) {
-        Event event = eventMapper.map(eventDTO);
-        return eventService.saveEvent(event)
-                .map(eventMapper::map)
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.badRequest().build());
     }
 }

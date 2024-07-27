@@ -46,15 +46,22 @@ public class UserService {
         return userRepository.findById(user.getId())
                 .switchIfEmpty(Mono.error(new NotFoundException("Пользователь с таким айди не найден")))
                 .flatMap(existingUser -> {
-                    if (!existingUser.getPassword().equals(user.getPassword())) {
+
+                    existingUser.setUsername(user.getUsername());
+                    existingUser.setRoles(user.getRoles());
+                    existingUser.setStatus(user.getStatus());
+
+                    if (!passwordEncoder.matches(user.getPassword(), existingUser.getPassword())) {
                         existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
                     }
+
                     return userRepository.save(existingUser)
                             .switchIfEmpty(Mono.error(new UserException("Ошибка запроса пользователь не сохранен")));
                 })
                 .doOnSuccess(updatedUser -> log.info("Пользователь с айди: {} успешно обновлен", user.getId()))
                 .doOnError(error -> log.error("Не удалось обновить пользователя {} ", user.getId(), error));
     }
+
 
     public Mono<Void> deleteUserById(Long id) {
         return userRepository.findById(id)

@@ -44,17 +44,34 @@ public class FileService {
     public Mono<FileEntity> uploadFile(FilePart filePart) {
         String filename = filePart.filename();
         return getCurrentUserId()
-                .flatMap(userId -> processFileContent(filePart)
-                        .flatMap(buffer -> s3Service.uploadFileToS3(filename, buffer))
-                        .flatMap(response -> saveFileEntity(filename))
-                        .flatMap(savedFile -> eventService.createEvent(userId, savedFile.getId())
-                                .thenReturn(savedFile))
-                )
-                .doOnSuccess(file -> log.info("Файл успешно загружен: {}", file.getName()))
+                .flatMap(userId -> {
+                    log.info("Пользователь ID: {}", userId);
+                    return processFileContent(filePart)
+                            .flatMap(buffer -> {
+                                log.info("Буфер файла подготовлен");
+                                return s3Service.uploadFileToS3(filename, buffer)
+                                        .doOnNext(response -> log.info("Ответ от S3: {}", response))
+                                        .doOnError(error -> log.error("Ошибка при загрузке файла в S3", error));
+                            })
+                            .flatMap(response -> {
+                                log.info("Файл успешно загружен в S3");
+                                return saveFileEntity(filename)
+                                        .doOnNext(savedFile -> log.info("Сохраненный файл: {}", savedFile))
+                                        .doOnError(error -> log.error("Ошибка при сохранении файла", error));
+                            })
+                            .flatMap(savedFile -> {
+                                log.info("Файл сохранен в базе данных");
+                                return eventService.createEvent(userId, savedFile.getId())
+                                        .thenReturn(savedFile)
+                                        .doOnError(error -> log.error("Ошибка при создании события", error));
+                            });
+                })
+                .doOnSuccess(file -> log.info("Файл успешно загружен: {}", filename))
                 .doOnError(error -> log.error("Ошибка при загрузке файла: {}", filename, error));
     }
 
-    private Mono<Long> getCurrentUserId() {
+
+    public Mono<Long> getCurrentUserId() {
         return ReactiveSecurityContextHolder.getContext()
                 .flatMap(securityContext -> {
                     Authentication authentication = securityContext.getAuthentication();
@@ -67,7 +84,7 @@ public class FileService {
                 });
     }
 
-    private Mono<ByteBuffer> processFileContent(FilePart filePart) {
+    public Mono<ByteBuffer> processFileContent(FilePart filePart) {
         AtomicReference<ByteBuffer> byteBufferRef = new AtomicReference<>();
 
         return filePart.content()
@@ -82,15 +99,23 @@ public class FileService {
                 .doOnError(error -> log.error("Ошибка при обработке содержимого файла", error));
     }
 
-    private Mono<FileEntity> saveFileEntity(String filename) {
+    public Mono<FileEntity> saveFileEntity(String filename) {
         FileEntity fileEntity = FileEntity.builder()
                 .name(filename)
                 .location("s3://" + s3Service.getBucketName() + "/" + filename)
                 .status(Status.ACTIVE)
                 .build();
 
+        log.info("Сохранение FileEntity в базе данных: {}", fileEntity);
+
         return fileRepository.save(fileEntity)
-                .doOnSuccess(file -> log.info("Файл успешно сохранен в базе данных: {}", filename))
+                .doOnSuccess(file -> {
+                    if (file != null) {
+                        log.info("Файл успешно сохранен в базе данных: {}", file);
+                    } else {
+                        log.error("Ошибка при сохранении файла в базе данных: {} - fileEntity is null", filename);
+                    }
+                })
                 .doOnError(error -> log.error("Ошибка при сохранении файла в базе данных: {}", filename, error));
     }
 

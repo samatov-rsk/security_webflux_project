@@ -4,6 +4,8 @@ server:
     type: netty
 
 spring:
+  main:
+    allow-bean-definition-overriding: true
   r2dbc:
     url: r2dbc:pool:postgresql://localhost:5432/proselyte
     username: user
@@ -13,6 +15,8 @@ spring:
     user: user
     password: password
     locations: classpath:db/migration
+    baseline-on-migrate: true # Добавьте эту строку
+
 jwt:
   password:
     encoder:

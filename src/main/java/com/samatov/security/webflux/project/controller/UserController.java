@@ -32,10 +32,12 @@ public class UserController {
 
     @GetMapping("/all")
     @PreAuthorize("hasAnyAuthority('MODERATOR', 'ADMIN')")
-    public Flux<ResponseEntity<UserDTO>> getAllUsers() {
-        return userService.getAllUser()
-                .map(user -> userMapper.map(user))
-                .map(ResponseEntity::ok);
+    public Mono<ResponseEntity<Flux<UserDTO>>> getAllUsers() {
+        return Mono.just(
+                ResponseEntity.ok()
+                        .body(userService.getAllUser()
+                                .map(userMapper::map))
+        );
     }
 
     @PostMapping("/save")
@@ -62,7 +64,7 @@ public class UserController {
     public Mono<ResponseEntity<Void>> deleteUserById(@PathVariable("id") Long id) {
         return userService.getUserById(id)
                 .flatMap(user -> userService.deleteUserById(user.getId())
-                                        .then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT))))
+                        .then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT))))
                 .switchIfEmpty(Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND)));
     }
 }

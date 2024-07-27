@@ -2,12 +2,12 @@ package com.samatov.security.webflux.project.model;
 
 import com.samatov.security.webflux.project.enums.Role;
 import com.samatov.security.webflux.project.enums.Status;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import javax.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor
@@ -34,10 +34,6 @@ public class User {
     @NotNull
     @Column("status")
     private Status status;
-
-//    @NotNull
-//    @MappedCollection(idColumn = "user_id")
-//    private Flux<Event> events;
 
     @ToString.Include(name = "password")
     private String maskPassword() {

@@ -1,11 +1,11 @@
 package com.samatov.security.webflux.project.model;
 
 import com.samatov.security.webflux.project.enums.Status;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-import javax.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor

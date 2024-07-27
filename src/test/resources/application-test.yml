@@ -1,0 +1,28 @@
+server:
+  port: 8083
+  reactive:
+    type: netty
+
+spring:
+  r2dbc:
+    url: r2dbc:pool:postgresql://localhost:5432/test_db
+    username: test_user
+    password: test_password
+  flyway:
+    url: jdbc:postgresql://localhost:5432/test_db
+    user: test_user
+    password: test_password
+    locations: classpath:db/migration
+  main:
+    allow-bean-definition-overriding: true
+
+jwt:
+  secret: FZK2DZ82odqS13e8aENggaMbb_fAkl-nJL4AEVBX43g
+  expiration: 3600
+  issuer: Ruslan
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.springframework.web.reactive: DEBUG
+    org.springframework.http: DEBUG
