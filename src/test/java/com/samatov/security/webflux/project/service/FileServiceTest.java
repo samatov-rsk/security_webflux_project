@@ -5,7 +5,6 @@ import com.samatov.security.webflux.project.exception.NotFoundException;
 import com.samatov.security.webflux.project.model.FileEntity;
 import com.samatov.security.webflux.project.repository.FileRepository;
 import com.samatov.security.webflux.project.s3.S3Service;
-import com.samatov.security.webflux.project.security.CustomPrincipal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,9 +20,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
-import java.nio.ByteBuffer;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 

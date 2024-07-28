@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -36,5 +37,26 @@ public class JwtTokenUtil {
                 .setExpiration(expirationDate)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public String createTokenForUser() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", "USER");
+        claims.put("username", "testuser");
+        return createToken(claims, "100");
+    }
+
+    public String createTokenForAdmin() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", "ADMIN");
+        claims.put("username", "admin");
+        return createToken(claims, "100");
+    }
+
+    public String createTokenForModerator() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", "MODERATOR");
+        claims.put("username", "moderator");
+        return createToken(claims, "100");
     }
 }

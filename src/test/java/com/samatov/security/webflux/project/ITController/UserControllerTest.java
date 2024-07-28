@@ -22,17 +22,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -83,7 +78,7 @@ public class UserControllerTest {
         when(userService.getUserById(any(Long.class))).thenReturn(Mono.just(user));
         when(userMapper.map(any(User.class))).thenReturn(userDTO);
 
-        String token = createTokenForUser(); // Create token for a user with necessary roles
+        String token = jwtTokenUtil.createTokenForUser();
 
         webTestClient.get().uri("/api/v1/user/{id}", 1L)
                 .header("Authorization", "Bearer " + token)
@@ -98,7 +93,7 @@ public class UserControllerTest {
         when(userService.getAllUser()).thenReturn(Flux.just(user));
         when(userMapper.map(any(User.class))).thenReturn(userDTO);
 
-        String token = createTokenForModerator();
+        String token = jwtTokenUtil.createTokenForModerator();
 
         webTestClient.get().uri("/api/v1/user/all")
                 .header("Authorization", "Bearer " + token)
@@ -119,7 +114,7 @@ public class UserControllerTest {
         when(userService.registerUser(any(User.class))).thenReturn(Mono.just(user));
         when(userMapper.map(any(User.class))).thenReturn(userDTO);
 
-        String token = createTokenForAdmin();
+        String token = jwtTokenUtil.createTokenForAdmin();
 
         webTestClient.post().uri("/api/v1/user/save")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -143,7 +138,7 @@ public class UserControllerTest {
         when(userMapper.map(any(UserDTO.class))).thenReturn(updatedUser);
         when(userMapper.map(any(User.class))).thenReturn(updatedUserDTO);
 
-        String token = createTokenForAdmin();
+        String token = jwtTokenUtil.createTokenForAdmin();
 
         webTestClient.put().uri("/api/v1/user/update")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -160,7 +155,7 @@ public class UserControllerTest {
         when(userService.getUserById(user.getId())).thenReturn(Mono.just(user));
         when(userService.deleteUserById(user.getId())).thenReturn(Mono.empty());
 
-        String token = createTokenForAdmin();
+        String token = jwtTokenUtil.createTokenForAdmin();
 
         webTestClient.delete().uri("/api/v1/user/{id}", user.getId())
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
@@ -172,7 +167,7 @@ public class UserControllerTest {
     public void testDeleteUserById_UserNotFound() {
         when(userService.getUserById(user.getId())).thenReturn(Mono.empty());
 
-        String token = createTokenForAdmin();
+        String token = jwtTokenUtil.createTokenForAdmin();
 
         webTestClient.delete().uri("/api/v1/user/{id}", user.getId())
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
@@ -180,24 +175,5 @@ public class UserControllerTest {
                 .expectStatus().isNotFound();
     }
 
-    private String createTokenForUser() {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", "USER");
-        claims.put("username", "testuser");
-        return jwtTokenUtil.createToken(claims, "100");
-    }
 
-    private String createTokenForAdmin() {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", "ADMIN");
-        claims.put("username", "admin");
-        return jwtTokenUtil.createToken(claims, "100");
-    }
-
-    private String createTokenForModerator() {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", "MODERATOR");
-        claims.put("username", "moderator");
-        return jwtTokenUtil.createToken(claims, "100");
-    }
 }

@@ -1,8 +1,7 @@
 package com.samatov.security.webflux.project.service;
 
-import com.samatov.security.webflux.project.exception.NotFoundException;
 import com.samatov.security.webflux.project.exception.EventException;
-import com.samatov.security.webflux.project.mapper.EventMapper;
+import com.samatov.security.webflux.project.exception.NotFoundException;
 import com.samatov.security.webflux.project.model.Event;
 import com.samatov.security.webflux.project.repository.EventRepository;
 import lombok.RequiredArgsConstructor;

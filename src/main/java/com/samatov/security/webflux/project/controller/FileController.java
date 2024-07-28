@@ -1,6 +1,7 @@
 package com.samatov.security.webflux.project.controller;
 
 import com.samatov.security.webflux.project.dto.FileDTO;
+import com.samatov.security.webflux.project.exception.NotFoundException;
 import com.samatov.security.webflux.project.mapper.FileMapper;
 import com.samatov.security.webflux.project.service.FileService;
 import lombok.RequiredArgsConstructor;
@@ -59,8 +60,8 @@ public class FileController {
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<Void>> deleteFile(@PathVariable Long id) {
         return fileService.deleteFile(id)
-                .map(v -> ResponseEntity.noContent().<Void>build())
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+                .then(Mono.just(ResponseEntity.noContent().<Void>build()))
+                .onErrorResume(NotFoundException.class, e -> Mono.just(ResponseEntity.<Void>notFound().build()));
     }
 
     @PreAuthorize("hasAnyAuthority('USER', 'MODERATOR', 'ADMIN')")
