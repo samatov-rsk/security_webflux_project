@@ -4,6 +4,8 @@ import com.samatov.security.webflux.project.dto.UserDTO;
 import com.samatov.security.webflux.project.mapper.UserMapper;
 import com.samatov.security.webflux.project.model.User;
 import com.samatov.security.webflux.project.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
+@Tag(name = "User Controller", description = "Endpoints for managing users")
 public class UserController {
 
     private final UserService userService;
@@ -23,6 +26,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('USER', 'MODERATOR', 'ADMIN')")
+    @Operation(summary = "Get user by ID", description = "Returns the user with the specified ID")
     public Mono<ResponseEntity<UserDTO>> getUserById(@Validated @PathVariable Long id) {
         return userService.getUserById(id)
                 .map(userMapper::map)
@@ -32,6 +36,7 @@ public class UserController {
 
     @GetMapping("/all")
     @PreAuthorize("hasAnyAuthority('MODERATOR', 'ADMIN')")
+    @Operation(summary = "Get all users", description = "Returns a list of all users")
     public Mono<ResponseEntity<Flux<UserDTO>>> getAllUsers() {
         return Mono.just(
                 ResponseEntity.ok()
@@ -42,6 +47,7 @@ public class UserController {
 
     @PostMapping("/save")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @Operation(summary = "Create a new user", description = "Creates a new user with the specified details")
     public Mono<ResponseEntity<UserDTO>> createUser(@Validated @RequestBody UserDTO userDTO) {
         User user = userMapper.map(userDTO);
         return userService.registerUser(user)
@@ -52,6 +58,7 @@ public class UserController {
 
     @PutMapping("/update")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @Operation(summary = "Update an existing user", description = "Updates an existing user with the specified details")
     public Mono<ResponseEntity<UserDTO>> updateUser(@Validated @RequestBody UserDTO userDTO) {
         User user = userMapper.map(userDTO);
         return userService.updateUser(user).map(userMapper::map)
@@ -61,6 +68,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @Operation(summary = "Delete user by ID", description = "Deletes the user with the specified ID")
     public Mono<ResponseEntity<Void>> deleteUserById(@PathVariable("id") Long id) {
         return userService.getUserById(id)
                 .flatMap(user -> userService.deleteUserById(user.getId())

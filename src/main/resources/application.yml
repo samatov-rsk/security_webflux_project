@@ -17,6 +17,14 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    defaultModelsExpandDepth: -1
+
 jwt:
   password:
     encoder:
@@ -31,8 +39,8 @@ jwt:
 cloud:
   aws:
     credentials:
-      access-key:
-      secret-key:
+      access-key: AKIA5FTZB3BXWRKYQJ74
+      secret-key: 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
     region:
       static: eu-central-1
     stack:

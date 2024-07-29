@@ -10,6 +10,8 @@ import com.samatov.security.webflux.project.model.Event;
 import com.samatov.security.webflux.project.service.EventService;
 import com.samatov.security.webflux.project.service.FileService;
 import com.samatov.security.webflux.project.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +24,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/events")
 @Validated
+@Tag(name = "Event Controller", description = "Endpoints for managing events")
 public class EventController {
 
     private final EventService eventService;
@@ -33,6 +36,7 @@ public class EventController {
 
     @PreAuthorize("hasAnyAuthority('USER', 'MODERATOR', 'ADMIN')")
     @GetMapping("/{id}")
+    @Operation(summary = "Get event by ID", description = "Returns the event with the specified ID")
     public Mono<ResponseEntity<EventDTO>> getEventById(@PathVariable Long id) {
         return eventService.getEventById(id)
                 .flatMap(event -> Mono.zip(
@@ -54,6 +58,7 @@ public class EventController {
 
     @PreAuthorize("hasAnyAuthority('USER', 'MODERATOR', 'ADMIN')")
     @GetMapping("/all")
+    @Operation(summary = "Get all events", description = "Returns a list of all events")
     public Flux<EventDTO> getAllEvents() {
         return eventService.getAllEvents()
                 .flatMap(event -> Mono.zip(

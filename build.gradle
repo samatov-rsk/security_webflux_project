@@ -54,6 +54,9 @@ dependencies {
     implementation "software.amazon.awssdk:netty-nio-client:${awsJavaSdkVersion}"
     implementation "io.projectreactor:reactor-core"
 
+    implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.7.0'
+    implementation 'org.springdoc:springdoc-openapi-webflux-core:1.7.0'
+
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.testcontainers:testcontainers"
     testImplementation "org.testcontainers:postgresql:1.19.0"

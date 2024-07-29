@@ -8,6 +8,8 @@ import com.samatov.security.webflux.project.model.User;
 import com.samatov.security.webflux.project.security.CustomPrincipal;
 import com.samatov.security.webflux.project.security.SecurityService;
 import com.samatov.security.webflux.project.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
+@Tag(name = "Authentication Controller", description = "Endpoints for user authentication")
 public class AuthController {
 
     private final SecurityService securityService;
@@ -23,6 +26,7 @@ public class AuthController {
     private final UserMapper userMapper;
 
     @PostMapping("/register")
+    @Operation(summary = "Register a new user", description = "Registers a new user with the given details")
     public Mono<UserDTO> register(@RequestBody UserDTO userDTO) {
         User user = userMapper.map(userDTO);
         return userService.registerUser(user)
@@ -30,6 +34,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Login a user", description = "Authenticates a user and returns a JWT token")
     public Mono<AuthResponseDTO> login(@RequestBody AuthRequestDTO authDTO) {
         return securityService.authenticate(authDTO.getUsername(), authDTO.getPassword())
                 .flatMap(tokenDetails -> Mono.just(
@@ -43,6 +48,7 @@ public class AuthController {
     }
 
     @GetMapping("/info")
+    @Operation(summary = "Get user info", description = "Returns the information of the authenticated user")
     public Mono<UserDTO> getUserInfo(Authentication authentication) {
         CustomPrincipal principal = (CustomPrincipal) authentication.getPrincipal();
 
