@@ -15,7 +15,7 @@ spring:
     user: user
     password: password
     locations: classpath:db/migration
-    baseline-on-migrate: true # Добавьте эту строку
+    baseline-on-migrate: true
 
 jwt:
   password:
@@ -31,8 +31,8 @@ jwt:
 cloud:
   aws:
     credentials:
-      access-key: AKIA5FTZB3BXWRKYQJ74
-      secret-key: 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
+      access-key:
+      secret-key:
     region:
       static: eu-central-1
     stack:
