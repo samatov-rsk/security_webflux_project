@@ -21,6 +21,7 @@ import com.samatov.security.webflux.project.service.UserService;
 import com.samatov.security.webflux.project.utils.JwtTokenUtil;
 import com.samatov.security.webflux.project.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,9 +97,11 @@ public class FileControllerTest {
 
         User mockUser = TestUtils.createUser();
         when(userRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Mono.just(mockUser));
-        when(fileService.getFileById(any(Long.class))).thenReturn(Mono.just(fileEntity));    }
+        when(fileService.getFileById(any(Long.class))).thenReturn(Mono.just(fileEntity));
+    }
 
     @Test
+    @DisplayName("Загрузка файла")
     public void testUploadFile() {
         when(fileService.uploadFile(ArgumentMatchers.any())).thenReturn(Mono.just(fileEntity));
         when(fileMapper.map(ArgumentMatchers.any(FileEntity.class))).thenReturn(fileDTO);
@@ -118,6 +121,7 @@ public class FileControllerTest {
     }
 
     @Test
+    @DisplayName("Получение файла по ID")
     public void testGetFileById() {
         when(fileService.getFileById(ArgumentMatchers.anyLong())).thenReturn(Mono.just(fileEntity));
         when(fileMapper.map(ArgumentMatchers.any(FileEntity.class))).thenReturn(fileDTO);
@@ -131,6 +135,7 @@ public class FileControllerTest {
     }
 
     @Test
+    @DisplayName("Получение файла по ID - не найдено")
     public void testGetFileById_NotFound() {
         when(fileService.getFileById(ArgumentMatchers.anyLong())).thenReturn(Mono.empty());
 
@@ -141,6 +146,7 @@ public class FileControllerTest {
     }
 
     @Test
+    @DisplayName("Получение всех файлов")
     public void testGetAllFiles() {
         List<FileEntity> fileEntities = Arrays.asList(fileEntity, TestUtils.createFileEntity());
         List<FileDTO> fileDTOs = Arrays.asList(fileDTO, TestUtils.createFileDTO());
@@ -159,6 +165,7 @@ public class FileControllerTest {
 
 
     @Test
+    @DisplayName("Удаление файла")
     public void testDeleteFile() {
         when(fileService.deleteFile(fileEntity.getId())).thenReturn(Mono.empty());
 
@@ -169,6 +176,7 @@ public class FileControllerTest {
     }
 
     @Test
+    @DisplayName("Удаление файла - не найдено")
     public void testDeleteFile_NotFound() {
         when(fileService.deleteFile(ArgumentMatchers.anyLong())).thenReturn(Mono.error(
                 new NotFoundException("Файл с таким id не найден")));
@@ -180,6 +188,7 @@ public class FileControllerTest {
     }
 
     @Test
+    @DisplayName("Скачивание файла")
     public void testDownloadFile() throws IOException {
         ByteBuffer byteBuffer = ByteBuffer.wrap(Files.readAllBytes(Paths.get("src/test/resources/test-files/testfile.txt")));
         when(fileService.getFileByName("testfile.txt")).thenReturn(Mono.just(byteBuffer));
@@ -194,6 +203,7 @@ public class FileControllerTest {
     }
 
     @Test
+    @DisplayName("Скачивание файла - не найдено")
     public void testDownloadFile_NotFound() {
         when(fileService.getFileByName("nonexistentfile.txt")).thenReturn(Mono.empty());
 

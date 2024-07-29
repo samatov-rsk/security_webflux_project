@@ -19,6 +19,7 @@ import java.util.Map;
 
 @Component
 public class AppErrorAttributes extends DefaultErrorAttributes {
+
     private HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
 
     public AppErrorAttributes() {

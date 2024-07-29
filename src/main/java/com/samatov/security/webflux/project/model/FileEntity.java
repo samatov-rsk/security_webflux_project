@@ -13,6 +13,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Builder(toBuilder = true)
 @Table("files")
 public class FileEntity {
+
     @Id
     private Long id;
 

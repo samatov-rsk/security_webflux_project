@@ -16,6 +16,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 @Component
 public class AppErrorWebExceptionHandler extends AbstractErrorWebExceptionHandler {
+
     public AppErrorWebExceptionHandler(AppErrorAttributes g, ApplicationContext applicationContext, ServerCodecConfigurer serverCodecConfigurer) {
         super(g, new WebProperties.Resources(), applicationContext);
         super.setMessageWriters(serverCodecConfigurer.getWriters());

@@ -69,6 +69,7 @@ class FileServiceTest {
         Mono<FileEntity> result = fileService.uploadFile(filePart);
 
     }
+
     @Test
     @DisplayName("Когда getFileById вызывается, то успешный результат")
     void getFileByIdTest() {

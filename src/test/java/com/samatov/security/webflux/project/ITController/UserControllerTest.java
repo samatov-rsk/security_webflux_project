@@ -15,6 +15,7 @@ import com.samatov.security.webflux.project.service.UserService;
 import com.samatov.security.webflux.project.utils.JwtTokenUtil;
 import com.samatov.security.webflux.project.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -74,6 +75,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Получение пользователя по ID")
     public void testGetUserById() {
         when(userService.getUserById(any(Long.class))).thenReturn(Mono.just(user));
         when(userMapper.map(any(User.class))).thenReturn(userDTO);
@@ -89,6 +91,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Получение всех пользователей")
     public void testGetAllUsers() {
         when(userService.getAllUser()).thenReturn(Flux.just(user));
         when(userMapper.map(any(User.class))).thenReturn(userDTO);
@@ -109,6 +112,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Создание нового пользователя")
     public void testCreateUser() {
         when(userMapper.map(any(UserDTO.class))).thenReturn(user);
         when(userService.registerUser(any(User.class))).thenReturn(Mono.just(user));
@@ -127,6 +131,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Обновление пользователя")
     public void testUpdateUser() {
         User user = TestUtils.createUser();
         UserDTO userDTO = TestUtils.createUserDTO();
@@ -151,6 +156,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Удаление пользователя по ID - пользователь существует")
     public void testDeleteUserById_UserExists() {
         when(userService.getUserById(user.getId())).thenReturn(Mono.just(user));
         when(userService.deleteUserById(user.getId())).thenReturn(Mono.empty());
@@ -164,6 +170,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Удаление пользователя по ID - пользователь не найден")
     public void testDeleteUserById_UserNotFound() {
         when(userService.getUserById(user.getId())).thenReturn(Mono.empty());
 

@@ -29,13 +29,14 @@ public class SecurityService {
     private String issuer;
 
     private TokenDetails generateToken(User user) {
-        Map<String, Object> claims = new HashMap<>(){{
+        Map<String, Object> claims = new HashMap<>() {{
             put("roles", user.getRoles());
             put("username", user.getUsername());
         }};
-        return generateToken(claims,user.getId().toString());
+        return generateToken(claims, user.getId().toString());
 
     }
+
     private TokenDetails generateToken(Map<String, Object> claims, String subject) {
         Long expirationTimeInMillis = expiration * 1000L;
         Date expirationDate = new Date(new Date().getTime() + expirationTimeInMillis);
@@ -72,7 +73,7 @@ public class SecurityService {
                         return Mono.error(new BadCredentialsException("INVALID PASSWORD"));
                     }
                     return Mono.just(generateToken(user).toBuilder()
-                                    .userId(user.getId())
+                            .userId(user.getId())
                             .build());
                 })
                 .switchIfEmpty(Mono.error(new AuthException("INVALID USERNAME", "PROSELYTE INVALID USERNAME")));

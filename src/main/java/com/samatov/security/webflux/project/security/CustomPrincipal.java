@@ -14,6 +14,4 @@ public class CustomPrincipal implements Principal, Serializable {
 
     private Long id;
     private String name;
-
-
 }

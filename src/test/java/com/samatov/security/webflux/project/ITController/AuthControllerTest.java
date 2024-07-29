@@ -16,6 +16,7 @@ import com.samatov.security.webflux.project.security.TokenDetails;
 import com.samatov.security.webflux.project.service.UserService;
 import com.samatov.security.webflux.project.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -81,6 +82,7 @@ public class AuthControllerTest {
     }
 
     @Test
+    @DisplayName("Регистрация нового пользователя")
     public void testRegisterUser() {
         when(userMapper.map(any(UserDTO.class))).thenReturn(user);
         when(userService.registerUser(any(User.class))).thenReturn(Mono.just(user));
@@ -96,6 +98,7 @@ public class AuthControllerTest {
     }
 
     @Test
+    @DisplayName("Аутентификация пользователя")
     public void testLogin() {
         when(securityService.authenticate(any(String.class), any(String.class)))
                 .thenReturn(Mono.just(tokenDetails));

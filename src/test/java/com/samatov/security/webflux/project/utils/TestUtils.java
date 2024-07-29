@@ -1,11 +1,9 @@
 package com.samatov.security.webflux.project.utils;
 
-import com.samatov.security.webflux.project.dto.AuthRequestDTO;
-import com.samatov.security.webflux.project.dto.AuthResponseDTO;
-import com.samatov.security.webflux.project.dto.FileDTO;
-import com.samatov.security.webflux.project.dto.UserDTO;
+import com.samatov.security.webflux.project.dto.*;
 import com.samatov.security.webflux.project.enums.Role;
 import com.samatov.security.webflux.project.enums.Status;
+import com.samatov.security.webflux.project.model.Event;
 import com.samatov.security.webflux.project.model.FileEntity;
 import com.samatov.security.webflux.project.model.User;
 
@@ -30,6 +28,22 @@ public class TestUtils {
                 .roles(Role.USER)
                 .status(Status.ACTIVE)
                 .build();
+    }
+
+    public static Event createEvent() {
+        return Event.builder()
+                .id(1L)
+                .userId(1L)
+                .fileId(1L)
+                .build();
+    }
+
+    public static EventDTO createEventDTO() {
+        EventDTO eventDTO = new EventDTO();
+        eventDTO.setId(1L);
+        eventDTO.setUser(createUserDTO());
+        eventDTO.setFile(createFileDTO());
+        return eventDTO;
     }
 
     public static AuthRequestDTO createAuthRequestDTO() {

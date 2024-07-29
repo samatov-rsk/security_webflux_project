@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class FileDTO {
+
     private Long id;
     private String name;
     private String location;
