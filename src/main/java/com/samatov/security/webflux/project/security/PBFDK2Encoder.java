@@ -14,14 +14,18 @@ import java.util.Base64;
 @Component
 public class PBFDK2Encoder implements PasswordEncoder {
 
-    @Value("${jwt.password.encoder.secret}")
-    private String secret;
+    private final String secret;
+    private final Integer iteration;
+    private final Integer keyLength;
 
-    @Value("${jwt.password.encoder.iteration}")
-    private Integer iteration;
+    public PBFDK2Encoder(@Value("${jwt.password.encoder.secret}") String secret,
+                         @Value("${jwt.password.encoder.iteration}") Integer iteration,
+                         @Value("${jwt.password.encoder.keyLength}") Integer keyLength) {
+        this.secret = secret;
+        this.iteration = iteration;
+        this.keyLength = keyLength;
+    }
 
-    @Value("${jwt.password.encoder.keyLength}")
-    private Integer keyLength;
 
     private static final String SECRET_KEY_INSTANCE = "PBKDF2WithHmacSHA512";
 

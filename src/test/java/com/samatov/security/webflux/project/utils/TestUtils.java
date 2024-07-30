@@ -6,6 +6,10 @@ import com.samatov.security.webflux.project.enums.Status;
 import com.samatov.security.webflux.project.model.Event;
 import com.samatov.security.webflux.project.model.FileEntity;
 import com.samatov.security.webflux.project.model.User;
+import com.samatov.security.webflux.project.security.PBFDK2Encoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 
 import java.util.Date;
 
@@ -13,9 +17,8 @@ public class TestUtils {
 
     public static User createUser() {
         return User.builder()
-                .id(1L)
-                .username("testuser")
-                .password("password")
+                .username("rus")
+                .password("password") // Зашифрованный пароль для тестов
                 .roles(Role.USER)
                 .status(Status.ACTIVE)
                 .build();
@@ -23,10 +26,8 @@ public class TestUtils {
 
     public static UserDTO createUserDTO() {
         return UserDTO.builder()
-                .id(1L)
                 .username("testuser")
-                .roles(Role.USER)
-                .status(Status.ACTIVE)
+                .password("password") // Пароль оставлен незашифрованным для запроса
                 .build();
     }
 
