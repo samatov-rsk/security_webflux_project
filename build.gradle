@@ -18,6 +18,8 @@ repositories {
 }
 
 dependencies {
+    implementation 'software.amazon.awssdk:s3:2.18.41'
+    implementation 'software.amazon.awssdk:netty-nio-client:2.18.41'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -36,19 +38,21 @@ dependencies {
     implementation 'io.r2dbc:r2dbc-postgresql:0.8.8.RELEASE'
     implementation 'org.postgresql:postgresql:42.7.2'
     implementation 'org.flywaydb:flyway-core:9.11.0'
-    implementation 'software.amazon.awssdk:s3:2.18.41'
-    implementation 'software.amazon.awssdk:netty-nio-client:2.18.41'
-    implementation 'io.projectreactor:reactor-core:3.5.4' // Обновлено до совместимой версии
-    implementation 'io.projectreactor.netty:reactor-netty:1.1.4' // Обновлено до совместимой версии
+    implementation 'io.projectreactor:reactor-core:3.5.4'
+    implementation 'io.projectreactor.netty:reactor-netty:1.1.4'
     implementation 'org.springdoc:springdoc-openapi-webflux-core:1.7.0'
     implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.7.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.testcontainers:testcontainers:1.19.0'
+    testImplementation 'org.testcontainers:localstack:1.19.0'
     testImplementation 'org.testcontainers:postgresql:1.19.0'
     testImplementation 'org.testcontainers:junit-jupiter:1.19.0'
     testImplementation 'org.testcontainers:r2dbc:1.19.0'
-    testImplementation 'io.projectreactor:reactor-test:3.5.4' // Обновлено до совместимой версии
+    testImplementation 'io.projectreactor:reactor-test:3.5.4'
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.mock-server:mockserver-netty:5.13.2'
+    testImplementation 'org.mock-server:mockserver-client-java:5.13.2'
+
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

@@ -35,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasAnyAuthority('MODERATOR', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('USER','MODERATOR', 'ADMIN')")
     @Operation(summary = "Get all users", description = "Returns a list of all users")
     public Mono<ResponseEntity<Flux<UserDTO>>> getAllUsers() {
         return Mono.just(
@@ -46,7 +46,7 @@ public class UserController {
     }
 
     @PostMapping("/save")
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('USER','ADMIN')")
     @Operation(summary = "Create a new user", description = "Creates a new user with the specified details")
     public Mono<ResponseEntity<UserDTO>> createUser(@Validated @RequestBody UserDTO userDTO) {
         User user = userMapper.map(userDTO);
@@ -57,7 +57,7 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('USER','ADMIN')")
     @Operation(summary = "Update an existing user", description = "Updates an existing user with the specified details")
     public Mono<ResponseEntity<UserDTO>> updateUser(@Validated @RequestBody UserDTO userDTO) {
         User user = userMapper.map(userDTO);
@@ -67,7 +67,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('USER','ADMIN')")
     @Operation(summary = "Delete user by ID", description = "Deletes the user with the specified ID")
     public Mono<ResponseEntity<Void>> deleteUserById(@PathVariable("id") Long id) {
         return userService.getUserById(id)

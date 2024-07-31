@@ -18,8 +18,17 @@ public class TestUtils {
     public static User createUser() {
         return User.builder()
                 .username("rus")
-                .password("password") // Зашифрованный пароль для тестов
+                .password("password")
                 .roles(Role.USER)
+                .status(Status.ACTIVE)
+                .build();
+    }
+
+    public static User createAdminUser() {
+        return User.builder()
+                .username("admin")
+                .password("password")
+                .roles(Role.ADMIN)
                 .status(Status.ACTIVE)
                 .build();
     }
@@ -27,7 +36,7 @@ public class TestUtils {
     public static UserDTO createUserDTO() {
         return UserDTO.builder()
                 .username("testuser")
-                .password("password") // Пароль оставлен незашифрованным для запроса
+                .password("password")
                 .build();
     }
 
