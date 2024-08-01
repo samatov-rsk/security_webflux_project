@@ -2,7 +2,7 @@ package com.samatov.security.webflux.project.ITController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.samatov.security.webflux.project.config.PostgresTestContainerConfig;
-import com.samatov.security.webflux.project.config.TestSecurityConfig;
+import com.samatov.security.webflux.project.config.WebSecurityConfig;
 import com.samatov.security.webflux.project.dto.AuthRequestDTO;
 import com.samatov.security.webflux.project.dto.AuthResponseDTO;
 import com.samatov.security.webflux.project.dto.UserDTO;
@@ -27,7 +27,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import({PostgresTestContainerConfig.class, TestSecurityConfig.class})
+@Import({PostgresTestContainerConfig.class, WebSecurityConfig.class})
 @ActiveProfiles("test")
 @Testcontainers
 public class AuthControllerTest {

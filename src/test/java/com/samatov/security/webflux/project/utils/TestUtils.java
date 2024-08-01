@@ -6,10 +6,6 @@ import com.samatov.security.webflux.project.enums.Status;
 import com.samatov.security.webflux.project.model.Event;
 import com.samatov.security.webflux.project.model.FileEntity;
 import com.samatov.security.webflux.project.model.User;
-import com.samatov.security.webflux.project.security.PBFDK2Encoder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 
 import java.util.Date;
 
@@ -42,18 +38,24 @@ public class TestUtils {
 
     public static Event createEvent() {
         return Event.builder()
-                .id(1L)
                 .userId(1L)
                 .fileId(1L)
                 .build();
     }
 
-    public static EventDTO createEventDTO() {
-        EventDTO eventDTO = new EventDTO();
-        eventDTO.setId(1L);
-        eventDTO.setUser(createUserDTO());
-        eventDTO.setFile(createFileDTO());
-        return eventDTO;
+    public static Event createEvent(Long userId, Long fileId) {
+        return Event.builder()
+                .userId(userId)
+                .fileId(fileId)
+                .build();
+    }
+
+    public static EventDTO createEventDTO(UserDTO userDTO, FileDTO fileDTO) {
+        return EventDTO.builder()
+                .id(1L)
+                .user(userDTO)
+                .file(fileDTO)
+                .build();
     }
 
     public static AuthRequestDTO createAuthRequestDTO() {
@@ -72,31 +74,19 @@ public class TestUtils {
                 .build();
     }
 
-    public static User createUpdatedUser(User user) {
-        return User.builder()
-                .id(user.getId())
-                .username("newUsername")
-                .password(user.getPassword())
-                .roles(Role.ADMIN)
-                .status(Status.INACTIVE)
-                .build();
-    }
-
-    public static UserDTO createUpdatedUserDTO(UserDTO userDTO) {
-        return UserDTO.builder()
-                .id(userDTO.getId())
-                .username("newUsername")
-                .password(userDTO.getPassword())
-                .roles(Role.ADMIN)
-                .status(Status.INACTIVE)
-                .build();
-    }
-
     public static FileEntity createFileEntity() {
         return FileEntity.builder()
+                .name("test" + System.currentTimeMillis() + ".txt")
+                .location("s3://bucket/test" + System.currentTimeMillis() + ".txt")
+                .status(Status.ACTIVE)
+                .build();
+    }
+
+    public static FileEntity createFileEntityForFileController() {
+        return FileEntity.builder()
                 .id(1L)
-                .name("test.txt")
-                .location("s3://bucket/test.txt")
+                .name("test" + System.currentTimeMillis() + ".txt")
+                .location("s3://bucket/test" + System.currentTimeMillis() + ".txt")
                 .status(Status.ACTIVE)
                 .build();
     }
@@ -109,4 +99,24 @@ public class TestUtils {
                 .status(Status.ACTIVE)
                 .build();
     }
+
+    public static UserDTO createUserDTOEvents(User user) {
+        return UserDTO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .roles(user.getRoles())
+                .status(user.getStatus())
+                .password(null)
+                .build();
+    }
+
+    public static FileDTO createFileDTOEvents(FileEntity fileEntity) {
+        return FileDTO.builder()
+                .id(fileEntity.getId())
+                .name(fileEntity.getName())
+                .location(fileEntity.getLocation())
+                .status(fileEntity.getStatus())
+                .build();
+    }
+
 }

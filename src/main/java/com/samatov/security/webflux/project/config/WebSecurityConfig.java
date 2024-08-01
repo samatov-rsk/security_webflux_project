@@ -3,6 +3,7 @@ package com.samatov.security.webflux.project.config;
 import com.samatov.security.webflux.project.security.AuthenticationManager;
 import com.samatov.security.webflux.project.security.BearerTokenServerAuthenticationConverter;
 import com.samatov.security.webflux.project.security.JwtHandler;
+import com.samatov.security.webflux.project.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -63,5 +64,10 @@ public class WebSecurityConfig {
                 new JwtHandler(secret)));
         bearerAuthenticationFilter.setRequiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers("/**"));
         return bearerAuthenticationFilter;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(UserService userService) {
+        return new AuthenticationManager(userService);
     }
 }

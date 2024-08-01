@@ -51,7 +51,7 @@ class FileServiceTest {
         FilePart filePart = mock(FilePart.class);
         DataBufferFactory dataBufferFactory = new DefaultDataBufferFactory();
         DataBuffer dataBuffer = dataBufferFactory.wrap("content".getBytes());
-        when(filePart.filename()).thenReturn("test-file.txt");
+        when(filePart.filename()).thenReturn("testfile.txt");
         when(filePart.content()).thenReturn(Flux.just(dataBuffer));
 
         // Mock S3Service
@@ -60,8 +60,8 @@ class FileServiceTest {
         // Mock FileRepository save method
         FileEntity fileEntity = FileEntity.builder()
                 .id(1L)
-                .name("test-file.txt")
-                .location("s3://bucket/test-file.txt")
+                .name("testfile.txt")
+                .location("s3://bucket/testfile.txt")
                 .status(Status.ACTIVE)
                 .build();
         when(fileRepository.save(any())).thenReturn(Mono.just(fileEntity));

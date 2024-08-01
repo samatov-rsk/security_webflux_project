@@ -1,134 +1,216 @@
+
 package com.samatov.security.webflux.project.ITController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.samatov.security.webflux.project.config.PostgresTestContainerConfig;
-import com.samatov.security.webflux.project.config.TestSecurityConfig;
-import com.samatov.security.webflux.project.dto.AuthRequestDTO;
-import com.samatov.security.webflux.project.dto.AuthResponseDTO;
+import com.samatov.security.webflux.project.config.TestConfig;
+import com.samatov.security.webflux.project.config.WebSecurityConfig;
+import com.samatov.security.webflux.project.controller.FileController;
 import com.samatov.security.webflux.project.dto.FileDTO;
+import com.samatov.security.webflux.project.errorhandling.AppErrorAttributes;
+import com.samatov.security.webflux.project.errorhandling.AppErrorWebExceptionHandler;
+import com.samatov.security.webflux.project.exception.NotFoundException;
+import com.samatov.security.webflux.project.mapper.FileMapper;
+import com.samatov.security.webflux.project.model.FileEntity;
 import com.samatov.security.webflux.project.model.User;
+import com.samatov.security.webflux.project.repository.EventRepository;
+import com.samatov.security.webflux.project.repository.FileRepository;
+import com.samatov.security.webflux.project.repository.UserRepository;
+import com.samatov.security.webflux.project.security.SecurityService;
+import com.samatov.security.webflux.project.service.EventService;
 import com.samatov.security.webflux.project.service.FileService;
 import com.samatov.security.webflux.project.service.UserService;
+import com.samatov.security.webflux.project.utils.JwtTokenUtil;
 import com.samatov.security.webflux.project.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.testcontainers.containers.LocalStackContainer;
-import org.testcontainers.utility.DockerImageName;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.http.HttpHeaders;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.net.URI;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import({PostgresTestContainerConfig.class, TestSecurityConfig.class})
+@WebFluxTest(controllers = FileController.class)
+@Import({
+        WebSecurityConfig.class,
+        JwtTokenUtil.class,
+        SecurityService.class,
+        UserService.class,
+        EventService.class,
+        FileService.class,
+        PostgresTestContainerConfig.class,
+        TestConfig.class,
+        AppErrorWebExceptionHandler.class,
+        AppErrorAttributes.class
+})
 @ActiveProfiles("test")
-@Testcontainers
 public class FileControllerTest {
-
-    @Container
-    public static LocalStackContainer localStack = new LocalStackContainer(DockerImageName.parse("localstack/localstack:latest"))
-            .withServices(LocalStackContainer.Service.S3)
-            .withEnv("DEFAULT_REGION", "us-east-1")
-            .waitingFor(Wait.forLogMessage(".*Ready.*", 1));
 
     @Autowired
     private WebTestClient webTestClient;
 
-    @Autowired
-    private UserService userService;
-
-    @InjectMocks
+    @MockBean
     private FileService fileService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @MockBean
+    private FileMapper fileMapper;
 
-    private User user;
-    private String userToken;
+    @MockBean
+    private EventRepository eventRepository;
+
+    @MockBean
+    private UserRepository userRepository;
+
+    @MockBean
+    private FileRepository fileRepository;
+
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    private FileEntity fileEntity;
+    private FileDTO fileDTO;
+    private String token;
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
+        fileEntity = TestUtils.createFileEntityForFileController();
+        fileDTO = TestUtils.createFileDTO();
+        token = jwtTokenUtil.createTokenForAdmin();
 
-        user = TestUtils.createUser();
-        userService.registerUser(user).block();
-
-        userToken = authenticateAndGetToken(user.getUsername(), user.getPassword());
-
-        S3Client s3Client = createLocalstackS3Client();
-        createBucket(s3Client, "my-bucket");
-    }
-
-    private S3Client createLocalstackS3Client() {
-        return S3Client.builder()
-                .endpointOverride(localStack.getEndpointOverride(LocalStackContainer.Service.S3))
-                .region(Region.US_EAST_1)
-                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(localStack.getAccessKey(), localStack.getSecretKey())))
-                .build();
-    }
-
-    private void createBucket(S3Client s3Client, String bucketName) {
-        try {
-            CreateBucketRequest createBucketRequest = CreateBucketRequest.builder()
-                    .bucket(bucketName)
-                    .build();
-            s3Client.createBucket(createBucketRequest);
-        } catch (S3Exception e) {
-            System.err.println(e.awsErrorDetails().errorMessage());
-        }
-    }
-
-    private String authenticateAndGetToken(String username, String password) {
-        AuthRequestDTO loginRequest = new AuthRequestDTO(username, password);
-        AuthResponseDTO response = webTestClient.post().uri("/api/v1/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(loginRequest)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(AuthResponseDTO.class)
-                .returnResult()
-                .getResponseBody();
-        return response != null ? response.getToken() : null;
+        User mockUser = TestUtils.createUser();
+        when(userRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Mono.just(mockUser));
+        when(fileService.getFileById(any(Long.class))).thenReturn(Mono.just(fileEntity));
     }
 
     @Test
-    @DisplayName("Загрузка нового файла")
+    @DisplayName("Загрузка файла")
     public void testUploadFile() {
-        MultipartBodyBuilder builder = new MultipartBodyBuilder();
-        builder.part("file", new ClassPathResource("test-file.txt"))
-                .header("Content-Disposition", "form-data; name=file; filename=test-file.txt");
+        when(fileService.uploadFile(ArgumentMatchers.any())).thenReturn(Mono.just(fileEntity));
+        when(fileMapper.map(ArgumentMatchers.any(FileEntity.class))).thenReturn(fileDTO);
+
+        MultipartBodyBuilder multipartBodyBuilder = new MultipartBodyBuilder();
+        multipartBodyBuilder.part("file", "Test Content".getBytes())
+                .header("Content-Disposition", "form-data; name=file; filename=test.txt");
 
         webTestClient.post().uri("/api/v1/file/upload")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
-                .header("Authorization", "Bearer " + userToken)
-                .bodyValue(builder.build())
+                .body(BodyInserters.fromMultipartData(multipartBodyBuilder.build()))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(FileDTO.class)
-                .value(response -> {
-                    assertEquals("test-file.txt", response.getName());
-                    assertEquals("ACTIVE", response.getStatus());
-                });
+                .isEqualTo(fileDTO);
+    }
+
+    @Test
+    @DisplayName("Получение файла по ID")
+    public void testGetFileById() {
+        when(fileService.getFileById(ArgumentMatchers.anyLong())).thenReturn(Mono.just(fileEntity));
+        when(fileMapper.map(ArgumentMatchers.any(FileEntity.class))).thenReturn(fileDTO);
+
+        webTestClient.get().uri("/api/v1/file/{id}", fileEntity.getId())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(FileDTO.class)
+                .isEqualTo(fileDTO);
+    }
+
+    @Test
+    @DisplayName("Получение файла по ID - не найдено")
+    public void testGetFileById_NotFound() {
+        when(fileService.getFileById(ArgumentMatchers.anyLong())).thenReturn(Mono.empty());
+
+        webTestClient.get().uri("/api/v1/file/{id}", fileEntity.getId())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    @DisplayName("Получение всех файлов")
+    public void testGetAllFiles() {
+        List<FileEntity> fileEntities = Arrays.asList(fileEntity, TestUtils.createFileEntity());
+        List<FileDTO> fileDTOs = Arrays.asList(fileDTO, TestUtils.createFileDTO());
+
+        when(fileService.getAllFiles()).thenReturn(Flux.fromIterable(fileEntities));
+        when(fileMapper.map(ArgumentMatchers.any(FileEntity.class)))
+                .thenReturn(fileDTO, fileDTOs.get(1));
+
+        webTestClient.get().uri("/api/v1/file/all")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(FileDTO.class)
+                .isEqualTo(fileDTOs);
+    }
+
+
+    @Test
+    @DisplayName("Удаление файла")
+    public void testDeleteFile() {
+        when(fileService.deleteFile(fileEntity.getId())).thenReturn(Mono.empty());
+
+        webTestClient.delete().uri("/api/v1/file/{id}", fileEntity.getId())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .exchange()
+                .expectStatus().isNoContent();
+    }
+
+    @Test
+    @DisplayName("Удаление файла - не найдено")
+    public void testDeleteFile_NotFound() {
+        when(fileService.deleteFile(ArgumentMatchers.anyLong())).thenReturn(Mono.error(
+                new NotFoundException("Файл с таким id не найден")));
+
+        webTestClient.delete().uri("/api/v1/file/{id}", fileEntity.getId())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    @DisplayName("Скачивание файла")
+    public void testDownloadFile() throws IOException {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(Files.readAllBytes(Paths.get("src/test/resources/test-files/testfile.txt")));
+        when(fileService.getFileByName("testfile.txt")).thenReturn(Mono.just(byteBuffer));
+
+        webTestClient.get().uri("/api/v1/file/download/testfile.txt")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().valueEquals(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"testfile.txt\"")
+                .expectHeader().contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .expectBody(byte[].class).isEqualTo(Files.readAllBytes(Paths.get("src/test/resources/test-files/testfile.txt")));
+    }
+
+    @Test
+    @DisplayName("Скачивание файла - не найдено")
+    public void testDownloadFile_NotFound() {
+        when(fileService.getFileByName("nonexistentfile.txt")).thenReturn(Mono.empty());
+
+        webTestClient.get().uri("/api/v1/file/download/nonexistentfile.txt")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .exchange()
+                .expectStatus().isNotFound();
     }
 }
