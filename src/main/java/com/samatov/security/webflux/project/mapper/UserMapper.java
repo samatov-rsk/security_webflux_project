@@ -4,7 +4,6 @@ import com.samatov.security.webflux.project.dto.UserDTO;
 import com.samatov.security.webflux.project.model.User;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
